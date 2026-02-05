@@ -1,3 +1,4 @@
+<!-- V2 -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -24,26 +25,32 @@
 function addTask() {
   const input = document.getElementById("task-input");
   const text = input.value.trim();
-  if(text === "") return;
+  if (text === "") return;
 
   const li = document.createElement("li");
-  li.className = "list-group-item d-flex justify-content-between align-items-center";
-  li.innerHTML = `<span>${text}</span><button class="btn btn-danger btn-sm">Dzēst</button>`;
+  li.className = "list-group-item d-flex align-items-center justify-content-between";
 
-  li.querySelector("span").onclick = function() {
-    li.querySelector("span").classList.toggle("text-decoration-line-through");
-    li.querySelector("span").classList.toggle("text-muted");
+  li.innerHTML = `
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox">
+      <label class="form-check-label ms-2">${text}</label>
+    </div>
+    <button class="btn btn-danger btn-sm">Dzēst</button>
+  `;
 
-  };
+  const checkbox = li.querySelector("input");
+  const label = li.querySelector("label");
 
-  li.querySelector("button").onclick = function() {
-    li.remove();
-  };
-  
+  checkbox.addEventListener("change", () => {
+    label.classList.toggle("text-decoration-line-through");
+    label.classList.toggle("text-muted");
+  });
+
+  li.querySelector("button").onclick = () => li.remove();
+
   document.getElementById("task-list").appendChild(li);
   input.value = "";
 }
-
 </script>
 
 </body>
