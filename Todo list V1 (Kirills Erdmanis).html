@@ -14,6 +14,11 @@
 
       <div class="input-group mb-3">
         <input type="text" id="task-input" class="form-control" placeholder="Ievadi uzdevumu">
+        <select id="priority-select" class="form-select" style="max-width: 150px;">
+          <option value="high">SVARĪGS</option>
+          <option value="medium" selected>Vidējs</option>
+          <option value="low">Zems</option>
+        </select>
         <button class="btn btn-primary" onclick="addTask()">Pievienot</button>
       </div>
 
@@ -23,18 +28,30 @@
 </div>
 
 <script>
+function getPriorityBadge(priority) {
+  switch(priority) {
+    case 'high': return 'danger';
+    case 'medium': return 'warning';
+    case 'low': return 'success';
+    default: return 'secondary';
+  }
+}
+
 function addTask() {
   const input = document.getElementById("task-input");
   const text = input.value.trim();
   if (text === "") return;
 
+  const priority = document.getElementById("priority-select").value;
+
   const li = document.createElement("li");
   li.className = "list-group-item d-flex align-items-center justify-content-between";
 
   li.innerHTML = `
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox">
-      <label class="form-check-label ms-2">${text}</label>
+    <div class="d-flex align-items-center flex-grow-1">
+      <span class="badge bg-${getPriorityBadge(priority)} me-2">${priority === 'high' ? 'SVARĪGS' : priority === 'medium' ? 'Vidējs' : 'Zems'}</span>
+      <input class="form-check-input me-2" type="checkbox">
+      <label class="form-check-label flex-grow-1">${text}</label>
     </div>
     <button class="btn btn-danger btn-sm">Dzēst</button>
   `;
@@ -63,12 +80,19 @@ function saveData() {
   const listItems = document.querySelectorAll("#task-list li");
 
   listItems.forEach(li => {
-    const text = li.querySelector("label").innerText;
-    const completed = li.querySelector("input").checked;
+    const label = li.querySelector("label");
+    const checkbox = li.querySelector("input");
+    const badge = li.querySelector(".badge");
+    
+    let priority = 'medium';
+    if (badge.classList.contains('bg-danger')) priority = 'high';
+    else if (badge.classList.contains('bg-warning')) priority = 'medium';
+    else if (badge.classList.contains('bg-success')) priority = 'low';
 
     tasks.push({
-      text: text,
-      completed: completed
+      text: label.innerText,
+      completed: checkbox.checked,
+      priority: priority
     });
   });
 
@@ -86,9 +110,10 @@ function loadData() {
     li.className = "list-group-item d-flex align-items-center justify-content-between";
 
     li.innerHTML = `
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox">
-        <label class="form-check-label ms-2">${task.text}</label>
+      <div class="d-flex align-items-center flex-grow-1">
+        <span class="badge bg-${getPriorityBadge(task.priority)} me-2">${task.priority === 'high' ? 'Svarīgi' : task.priority === 'medium' ? 'Vidēji' : 'Zema'}</span>
+        <input class="form-check-input me-2" type="checkbox">
+        <label class="form-check-label flex-grow-1">${task.text}</label>
       </div>
       <button class="btn btn-danger btn-sm">Dzēst</button>
     `;
@@ -97,7 +122,6 @@ function loadData() {
     const label = li.querySelector("label");
 
     checkbox.checked = task.completed;
-
     if (task.completed) {
       label.classList.add("text-decoration-line-through", "text-muted");
     }
